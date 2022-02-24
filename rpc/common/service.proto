@@ -21,7 +21,7 @@ message PackageInfo {
 message Application {
   string           type      = 1;
   string           file_path = 2;
-  repeated Library libraries = 3;
+  repeated Package libraries = 3;
 }
 
 message Package {
@@ -40,6 +40,7 @@ message Package {
   int32  src_epoch   = 9;
   string license     = 10;
   Layer  layer       = 11;
+  string file_path   = 12;
 }
 
 message Library {
@@ -101,6 +102,7 @@ message Vulnerability {
   google.protobuf.Value     custom_vuln_data     = 18;
   repeated string           vendor_ids           = 19;
   DataSource                data_source          = 20;
+  string                    pkg_path             = 21;
 }
 
 message DataSource {
