@@ -33,6 +33,7 @@ func ConvertToRPCPkgs(pkgs []ftypes.Package) []*common.Package {
 			SrcEpoch:   int32(pkg.SrcEpoch),
 			License:    pkg.License,
 			Layer:      ConvertToRPCLayer(pkg.Layer),
+			FilePath:   pkg.FilePath,
 		})
 	}
 	return rpcPkgs
@@ -54,6 +55,7 @@ func ConvertFromRPCPkgs(rpcPkgs []*common.Package) []ftypes.Package {
 			SrcEpoch:   int(pkg.SrcEpoch),
 			License:    pkg.License,
 			Layer:      ConvertFromRPCLayer(pkg.Layer),
+			FilePath:   pkg.FilePath,
 		})
 	}
 	return pkgs
@@ -124,6 +126,7 @@ func ConvertToRPCVulns(vulns []types.DetectedVulnerability) []*common.Vulnerabil
 			VulnerabilityId:    vuln.VulnerabilityID,
 			VendorIds:          vuln.VendorIDs,
 			PkgName:            vuln.PkgName,
+			PkgPath:            vuln.PkgPath,
 			InstalledVersion:   vuln.InstalledVersion,
 			FixedVersion:       vuln.FixedVersion,
 			Title:              vuln.Title,
@@ -255,6 +258,7 @@ func ConvertFromRPCVulns(rpcVulns []*common.Vulnerability) []types.DetectedVulne
 			VulnerabilityID:  vuln.VulnerabilityId,
 			VendorIDs:        vuln.VendorIds,
 			PkgName:          vuln.PkgName,
+			PkgPath:          vuln.PkgPath,
 			InstalledVersion: vuln.InstalledVersion,
 			FixedVersion:     vuln.FixedVersion,
 			Vulnerability: dbTypes.Vulnerability{
@@ -354,7 +358,7 @@ func ConvertFromRPCApplications(rpcApps []*common.Application) []ftypes.Applicat
 		apps = append(apps, ftypes.Application{
 			Type:      rpcApp.Type,
 			FilePath:  rpcApp.FilePath,
-			Libraries: ConvertFromRPCLibraries(rpcApp.Libraries),
+			Libraries: ConvertFromRPCPkgs(rpcApp.Libraries),
 		})
 	}
 	return apps
@@ -468,18 +472,10 @@ func ConvertToRPCBlobInfo(diffID string, blobInfo ftypes.BlobInfo) *cache.PutBlo
 
 	var applications []*common.Application
 	for _, app := range blobInfo.Applications {
-		var libs []*common.Library
-		for _, lib := range app.Libraries {
-			libs = append(libs, &common.Library{
-				Name:    lib.Name,
-				Version: lib.Version,
-				License: lib.License,
-			})
-		}
 		applications = append(applications, &common.Application{
 			Type:      app.Type,
 			FilePath:  app.FilePath,
-			Libraries: libs,
+			Libraries: ConvertToRPCPkgs(app.Libraries),
 		})
 	}
 
