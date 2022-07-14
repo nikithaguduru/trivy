@@ -3,8 +3,10 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 var (
@@ -49,4 +51,12 @@ func Keys(m map[string]struct{}) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+func GetInode(f fs.FileInfo) uint64 {
+	stat, ok := f.Sys().(*syscall.Stat_t)
+	if !ok {
+		return 0
+	}
+	return stat.Ino
 }

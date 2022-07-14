@@ -100,7 +100,7 @@ type AnalysisResult struct {
 	PackageInfos         []types.PackageInfo
 	Applications         []types.Application
 	Secrets              []types.Secret
-	SystemInstalledFiles []string // A list of files installed by OS package manager
+	SystemInstalledFiles []types.SystemInstalledFiles // A list of files installed by OS package manager
 
 	Files map[types.HandlerType][]types.File
 

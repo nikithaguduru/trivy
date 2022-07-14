@@ -3,6 +3,7 @@ package dpkg
 import (
 	"bufio"
 	"context"
+	"github.com/aquasecurity/trivy/pkg/fanal/utils"
 	"log"
 	"os"
 	"path/filepath"
@@ -46,7 +47,7 @@ func (a dpkgAnalyzer) Analyze(_ context.Context, input analyzer.AnalysisInput) (
 
 // parseDpkgStatus parses /var/lib/dpkg/info/*.list
 func (a dpkgAnalyzer) parseDpkgInfoList(scanner *bufio.Scanner) (*analyzer.AnalysisResult, error) {
-	var installedFiles []string
+	var installedFiles []types.SystemInstalledFiles
 	var previous string
 	for scanner.Scan() {
 		current := scanner.Text()
@@ -61,13 +62,23 @@ func (a dpkgAnalyzer) parseDpkgInfoList(scanner *bufio.Scanner) (*analyzer.Analy
 		//
 		// In the above case, we should take only /usr/sbin/tarcat since /usr/sbin is a directory
 		if !strings.HasPrefix(current, previous+"/") {
-			installedFiles = append(installedFiles, previous)
+			fileInfo, err := os.Lstat(previous)
+			ino := utils.GetInode(fileInfo)
+			if err != nil {
+				continue
+			}
+			installedFiles = append(installedFiles, types.SystemInstalledFiles{FilePath: previous, Inode: ino})
 		}
 		previous = current
 	}
 
 	// Add the last file
-	installedFiles = append(installedFiles, previous)
+	fileInfo, err := os.Lstat(previous)
+	ino := utils.GetInode(fileInfo)
+	if err != nil {
+		log.Printf(err.Error())
+	}
+	installedFiles = append(installedFiles, types.SystemInstalledFiles{FilePath: previous, Inode: ino})
 
 	if err := scanner.Err(); err != nil {
 		return nil, xerrors.Errorf("scan error: %w", err)
