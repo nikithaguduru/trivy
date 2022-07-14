@@ -75,7 +75,7 @@ func (a rpmPkgAnalyzer) Analyze(_ context.Context, input analyzer.AnalysisInput)
 	}, nil
 }
 
-func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []string, error) {
+func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []types.SystemInstalledFiles, error) {
 	tmpDir, err := os.MkdirTemp("", "rpm")
 	if err != nil {
 		return nil, nil, xerrors.Errorf("failed to create a temp dir: %w", err)
@@ -113,7 +113,7 @@ func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []string, e
 	}
 
 	var pkgs []types.Package
-	var installedFiles []string
+	var installedFiles []types.SystemInstalledFiles
 	for _, pkg := range pkgList {
 		arch := pkg.Arch
 		if arch == "" {
@@ -133,10 +133,19 @@ func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []string, e
 		// Check if the package is vendor-provided.
 		// If the package is not provided by vendor, the installed files should not be skipped.
 		var files []string
+		var inodeFiles []types.SystemInstalledFiles
 		if packageProvidedByVendor(pkg.Vendor) {
 			files, err = pkg.InstalledFileNames()
 			if err != nil {
 				return nil, nil, xerrors.Errorf("unable to get installed files: %w", err)
+			}
+			for _, file := range files {
+				fileInfo, err := os.Lstat(file)
+				ino := utils.GetInode(fileInfo)
+				if err != nil {
+					continue
+				}
+				inodeFiles = append(inodeFiles, types.SystemInstalledFiles{FilePath: file, Inode: ino})
 			}
 		}
 
@@ -154,7 +163,7 @@ func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []string, e
 			License:         pkg.License,
 		}
 		pkgs = append(pkgs, p)
-		installedFiles = append(installedFiles, files...)
+		installedFiles = append(installedFiles, inodeFiles...)
 	}
 
 	return pkgs, installedFiles, nil

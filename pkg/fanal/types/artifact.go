@@ -22,6 +22,11 @@ type Layer struct {
 	DiffID string `json:",omitempty"`
 }
 
+type SystemInstalledFiles struct {
+	FilePath string
+	Inode    uint64
+}
+
 type Package struct {
 	ID         string `json:",omitempty"`
 	Name       string `json:",omitempty"`
@@ -46,6 +51,7 @@ type Package struct {
 
 	// Each package metadata have the file path, while the package from lock files does not have.
 	FilePath string `json:",omitempty"`
+	Inode    uint64
 }
 
 // BuildInfo represents information under /root/buildinfo in RHEL
@@ -67,6 +73,7 @@ type SrcPackage struct {
 
 type PackageInfo struct {
 	FilePath string
+	Inode    uint64
 	Packages []Package
 }
 
@@ -76,6 +83,7 @@ type Application struct {
 
 	// Lock files have the file path here, while each package metadata do not have
 	FilePath string `json:",omitempty"`
+	Inode    uint64
 
 	// Libraries is a list of lang-specific packages
 	Libraries []Package
@@ -171,6 +179,7 @@ type ArtifactDetail struct {
 type CustomResource struct {
 	Type     string
 	FilePath string
+	Inode    uint64
 	Layer    Layer
 	Data     interface{}
 }
