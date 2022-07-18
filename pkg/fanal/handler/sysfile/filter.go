@@ -59,10 +59,10 @@ func (h systemFileFilteringPostHandler) Handle(_ context.Context, result *analyz
 	var systemFiles []string
 	for _, defFile := range defaultSystemFiles {
 		fileInfo, err := os.Lstat(defFile)
-		ino := utils.GetInode(fileInfo)
 		if err != nil {
 			continue
 		}
+		ino := utils.GetInode(fileInfo)
 		DefSystemFiles = append(DefSystemFiles, types.SystemInstalledFiles{FilePath: defFile, Inode: ino})
 
 	}

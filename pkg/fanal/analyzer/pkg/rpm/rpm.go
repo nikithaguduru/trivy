@@ -141,10 +141,10 @@ func (a rpmPkgAnalyzer) parsePkgInfo(rc io.Reader) ([]types.Package, []types.Sys
 			}
 			for _, file := range files {
 				fileInfo, err := os.Lstat(file)
-				ino := utils.GetInode(fileInfo)
 				if err != nil {
 					continue
 				}
+				ino := utils.GetInode(fileInfo)
 				inodeFiles = append(inodeFiles, types.SystemInstalledFiles{FilePath: file, Inode: ino})
 			}
 		}

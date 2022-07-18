@@ -63,10 +63,10 @@ func (a dpkgAnalyzer) parseDpkgInfoList(scanner *bufio.Scanner) (*analyzer.Analy
 		// In the above case, we should take only /usr/sbin/tarcat since /usr/sbin is a directory
 		if !strings.HasPrefix(current, previous+"/") {
 			fileInfo, err := os.Lstat(previous)
-			ino := utils.GetInode(fileInfo)
 			if err != nil {
 				continue
 			}
+			ino := utils.GetInode(fileInfo)
 			installedFiles = append(installedFiles, types.SystemInstalledFiles{FilePath: previous, Inode: ino})
 		}
 		previous = current
@@ -74,10 +74,10 @@ func (a dpkgAnalyzer) parseDpkgInfoList(scanner *bufio.Scanner) (*analyzer.Analy
 
 	// Add the last file
 	fileInfo, err := os.Lstat(previous)
-	ino := utils.GetInode(fileInfo)
 	if err != nil {
 		log.Printf(err.Error())
 	}
+	ino := utils.GetInode(fileInfo)
 	installedFiles = append(installedFiles, types.SystemInstalledFiles{FilePath: previous, Inode: ino})
 
 	if err := scanner.Err(); err != nil {

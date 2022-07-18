@@ -80,10 +80,10 @@ func (a alpinePkgAnalyzer) parseApkInfo(scanner *bufio.Scanner) ([]types.Package
 			dir = line[2:]
 		case "R:":
 			fileInfo, err := os.Lstat(filepath.Join(dir, line[2:]))
-			ino := utils.GetInode(fileInfo)
 			if err != nil {
 				continue
 			}
+			ino := utils.GetInode(fileInfo)
 			installedFiles = append(installedFiles, types.SystemInstalledFiles{FilePath: filepath.Join(dir, line[2:]), Inode: ino})
 		}
 	}
