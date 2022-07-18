@@ -2,6 +2,8 @@ package nodejs
 
 import (
 	"context"
+	"github.com/aquasecurity/trivy/pkg/fanal/utils"
+	"os"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/fanal/artifact"
@@ -44,6 +46,8 @@ var (
 	}
 )
 
+var DefSystemFiles []types.SystemInstalledFiles
+
 type systemFileFilteringPostHandler struct{}
 
 func newSystemFileFilteringPostHandler(artifact.Option) (handler.PostHandler, error) {
@@ -53,9 +57,18 @@ func newSystemFileFilteringPostHandler(artifact.Option) (handler.PostHandler, er
 // Handle removes files installed by OS package manager such as yum.
 func (h systemFileFilteringPostHandler) Handle(_ context.Context, result *analyzer.AnalysisResult, blob *types.BlobInfo) error {
 	var systemFiles []string
-	for _, file := range append(result.SystemInstalledFiles, defaultSystemFiles...) {
+	for _, defFile := range defaultSystemFiles {
+		fileInfo, err := os.Lstat(defFile)
+		ino := utils.GetInode(fileInfo)
+		if err != nil {
+			continue
+		}
+		DefSystemFiles = append(DefSystemFiles, types.SystemInstalledFiles{FilePath: defFile, Inode: ino})
+
+	}
+	for _, file := range append(result.SystemInstalledFiles, DefSystemFiles...) {
 		// Trim leading slashes to be the same format as the path in container images.
-		systemFile := strings.TrimPrefix(file, "/")
+		systemFile := strings.TrimPrefix(file.FilePath, "/")
 		// We should check the root filepath ("/") and ignore it.
 		// Otherwise libraries with an empty filePath will be removed.
 		if systemFile != "" {
