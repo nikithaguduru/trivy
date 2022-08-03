@@ -3,6 +3,7 @@ package walker
 import (
 	"archive/tar"
 	"bytes"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -42,6 +43,7 @@ func (w LayerTar) Walk(layer io.Reader, analyzeFn WalkFunc) ([]string, []string,
 		}
 
 		filePath := hdr.Name
+		fmt.Println(filePath)
 		filePath = strings.TrimLeft(filepath.Clean(filePath), "/")
 		fileDir, fileName := filepath.Split(filePath)
 
