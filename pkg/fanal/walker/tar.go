@@ -43,7 +43,9 @@ func (w LayerTar) Walk(layer io.Reader, analyzeFn WalkFunc) ([]string, []string,
 		}
 
 		filePath := hdr.Name
-		fmt.Println(filePath)
+		if strings.HasPrefix(filePath, "usr/lib") || strings.HasPrefix(filePath, "usr/bin") {
+			fmt.Println("here")
+		}
 		filePath = strings.TrimLeft(filepath.Clean(filePath), "/")
 		fileDir, fileName := filepath.Split(filePath)
 
