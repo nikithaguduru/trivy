@@ -104,6 +104,7 @@ type ArtifactReference struct {
 	ID            string
 	BlobIDs       []string
 	ImageMetadata ImageMetadata
+	ImageKey      string
 
 	// SBOM
 	CycloneDX *CycloneDX
