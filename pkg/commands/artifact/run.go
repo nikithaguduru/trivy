@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
@@ -549,8 +548,7 @@ func initScannerConfig(opts flag.Options, cacheClient cache.Cache) (ScannerConfi
 		VulnType:            opts.VulnType,
 		Scanners:            opts.Scanners,
 		ImageConfigScanners: opts.ImageConfigScanners, // this is valid only for 'image' subcommand
-		ScanRemovedPackages: opts.ScanRemovedPkgs,     // this is valid only for 'image' subcommand
-		Platform:            opts.Platform,            // this is valid only for 'image' subcommand
+		ScanRemovedPackages: opts.ScanRemovedPkgs,     // this is valid only for 'image' subcommand 		// this is valid only for 'image' subcommand
 		ListAllPackages:     opts.ListAllPkgs,
 		LicenseCategories:   opts.LicenseCategories,
 		FilePatterns:        opts.FilePatterns,
@@ -642,8 +640,6 @@ func initScannerConfig(opts flag.Options, cacheClient cache.Cache) (ScannerConfi
 			RepoTag:           opts.RepoTag,
 			SBOMSources:       opts.SBOMSources,
 			RekorURL:          opts.RekorURL,
-			Platform:          opts.Platform,
-			DockerHost:        opts.DockerHost,
 			Slow:              opts.Slow,
 			AWSRegion:         opts.Region,
 			FileChecksum:      fileChecksum,

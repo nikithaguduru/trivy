@@ -7,6 +7,14 @@ type Image interface {
 	ImageExtension
 }
 
+type Platform struct {
+	*v1.Platform
+
+	// Force returns an error if the specified platform is not found.
+	// This option is for Aqua, and cannot be configured via Trivy CLI.
+	Force bool
+}
+
 type ImageExtension interface {
 	Name() string
 	ID() (string, error)
@@ -44,7 +52,7 @@ type RegistryOptions struct {
 	Insecure bool
 
 	// Architecture
-	Platform string
+	Platform Platform
 
 	// ECR
 	AWSAccessKey    string

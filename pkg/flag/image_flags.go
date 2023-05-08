@@ -1,9 +1,10 @@
 package flag
 
 import (
-	"golang.org/x/xerrors"
-
+	ftypes "github.com/aquasecurity/trivy/pkg/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/types"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"golang.org/x/xerrors"
 )
 
 // e.g. config yaml
@@ -56,7 +57,7 @@ type ImageOptions struct {
 	Input               string
 	ImageConfigScanners types.Scanners
 	ScanRemovedPkgs     bool
-	Platform            string
+	Platform            ftypes.Platform
 	DockerHost          string
 }
 
@@ -89,11 +90,22 @@ func (f *ImageFlagGroup) ToOptions() (ImageOptions, error) {
 	if err != nil {
 		return ImageOptions{}, xerrors.Errorf("unable to parse image config scanners: %w", err)
 	}
+	var platform ftypes.Platform
+	if p := getString(f.Platform); p != "" {
+		pl, err := v1.ParsePlatform(p)
+		if err != nil {
+			return ImageOptions{}, xerrors.Errorf("unable to parse platform: %w", err)
+		}
+		if pl.OS == "*" {
+			pl.OS = "" // Empty OS means any OS
+		}
+		platform = ftypes.Platform{Platform: pl}
+	}
 	return ImageOptions{
 		Input:               getString(f.Input),
 		ImageConfigScanners: scanners,
 		ScanRemovedPkgs:     getBool(f.ScanRemovedPkgs),
-		Platform:            getString(f.Platform),
+		Platform:            platform,
 		DockerHost:          getString(f.DockerHost),
 	}, nil
 }
